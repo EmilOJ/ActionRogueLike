@@ -7,6 +7,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "TaMagicProjectile.h"
 
 // Sets default values
 ATaCharacter::ATaCharacter()
@@ -60,6 +61,21 @@ void ATaCharacter::Look(const FInputActionValue& Value)
 	AddControllerPitchInput(LookVector.Y);
 }
 
+void ATaCharacter::DoJump(const FInputActionValue& Value)
+{
+	Jump();
+}
+
+void ATaCharacter::PrimaryAttack(const FInputActionValue& Value)
+{
+	const FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, HandLocation, GetActorRotation());
+}
+
 // Called every frame
 void ATaCharacter::Tick(float DeltaTime)
 {
@@ -76,6 +92,8 @@ void ATaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATaCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATaCharacter::Look);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ATaCharacter::Jump);
+		EnhancedInputComponent->BindAction(PrimaryAttackAction, ETriggerEvent::Started, this, &ATaCharacter::PrimaryAttack);
 	}
 
 }
