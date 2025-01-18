@@ -6,6 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ATaCharacter::ATaCharacter()
@@ -14,10 +15,15 @@ ATaCharacter::ATaCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	SpringArm->bUsePawnControlRotation = true;
 	SpringArm->SetupAttachment(RootComponent);
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+
+	bUseControllerRotationYaw = false;
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
 // Called when the game starts or when spawned
@@ -39,8 +45,11 @@ void ATaCharacter::Move(const FInputActionValue& Value)
 {
 	const FVector2D MoveVector = Value.Get<FVector2D>();
 
-	AddMovementInput(GetActorForwardVector(), MoveVector.X);
-	AddMovementInput(GetActorRightVector(), MoveVector.Y);
+	const FRotator ControlRotation = GetControlRotation();
+	AddMovementInput(ControlRotation.Vector(), MoveVector.X);
+
+	const FVector RightVector = FRotationMatrix(ControlRotation).GetScaledAxis(EAxis::Y);
+	AddMovementInput(RightVector, MoveVector.Y);
 }
 
 void ATaCharacter::Look(const FInputActionValue& Value)
