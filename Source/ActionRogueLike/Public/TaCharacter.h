@@ -6,6 +6,9 @@
 #include "GameFramework/Character.h"
 #include "TaCharacter.generated.h"
 
+struct FInputActionValue;
+class UInputAction;
+class UInputMappingContext;
 class USpringArmComponent;
 class UCameraComponent;
 
@@ -22,11 +25,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere)
-	class USpringArmComponent* SpringArm;
-
-	UPROPERTY(VisibleAnywhere)
-	class UCameraComponent* Camera;
+	void Move(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
 
 public:	
 	// Called every frame
@@ -35,4 +35,19 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+protected:
+	UPROPERTY(VisibleAnywhere)
+	USpringArmComponent* SpringArm;
+
+	UPROPERTY(VisibleAnywhere)
+	UCameraComponent* Camera;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	UInputMappingContext* DefaultMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	UInputAction* MoveAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	UInputAction* LookAction;
 };
